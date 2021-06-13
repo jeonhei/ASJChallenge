@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,20 +26,15 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            //改变SystemBar颜色
-            val systemUiController = rememberSystemUiController()
-            val useDarkIcons = MaterialTheme.colors.isLight
-
-            SideEffect {
-                systemUiController.setSystemBarsColor(
-                    color = Color.White,
-                    darkIcons = useDarkIcons
-                )
-            }
-
             ASJChallengeTheme {
-                // A surface container using the 'background' color from the theme
+                //改变SystemBar颜色
+                rememberSystemUiController().setSystemBarsColor(
+                    color = MaterialTheme.colors.background,
+                    darkIcons = MaterialTheme.colors.isLight
+                )
+
                 ProvideWindowInsets {//添加System padding
+                    // A surface container using the 'background' color from the theme
                     Surface(color = MaterialTheme.colors.background) {
                         SearchFrame()
                     }
@@ -49,9 +46,12 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun SearchFrame() {
-    var value by remember { mutableStateOf("") }
+//    val searchDatas = listOf("an", "aback", "abase", "abash", "acid", "ant", "bob", "bean", "back", "cat", "dog", "ear")
+    var keyword by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxWidth().padding(top = 64.dp)) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(top = 64.dp)) {
         Image(
             painter = painterResource(id = R.drawable.ic_jetpack_compose),
             modifier = Modifier
@@ -64,9 +64,9 @@ fun SearchFrame() {
             .padding(8.dp)) {
 
             OutlinedTextField(
-                value = value,
+                value = keyword,
                 onValueChange = {
-                    value = it
+                    keyword = it
                 },
                 maxLines = 1,
                 modifier = Modifier
@@ -74,7 +74,7 @@ fun SearchFrame() {
                     .weight(5f),
                 label = {
                     Text("请输入搜索关键字")
-                }
+                },
             )
 
             TextButton(
@@ -84,6 +84,22 @@ fun SearchFrame() {
                     .align(Alignment.CenterVertically)) {
                 Text(text = "搜索")
             }
+        }
+
+//        SearchHintList(keyword = keyword)
+
+//        val resultDatas by remember { mutableStateOf(searchDatas.filter { it.contains(keyword) }) }
+//        SearchHintList(resultDatas)
+    }
+}
+
+@Composable
+fun SearchHintList(results: List<String>) {
+    val scrollState = rememberLazyListState()
+
+    LazyColumn(state = scrollState) {
+        items(count = results.size) {
+            Text(text = results[it])
         }
     }
 }
